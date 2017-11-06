@@ -1,0 +1,43 @@
+import pylab as py
+import numpy as np
+import scipy as sci
+import scipy.linalg
+
+xmin = 0.0
+xmax = 1.0
+nx = 100
+dx = xmax/nx
+t0 = 0
+nt = 1500
+K = 1.0
+dt = 2e-5
+D = K*dt/(dx*dx)
+
+
+# set axes
+x = py.linspace(xmin, xmax, nx)
+y = py.linspace(t0, nt, dt)
+
+# set initial conditions
+phi = py.where((x>0.25) & (x<0.75), 1., 0.)
+
+M = py.zeros([nx,nx])
+for j in range(nx):
+    M[j, (j-1)%nx] = -D
+    M[j, (j)%nx] = 1.+2.*D
+    M[j, (j+1)%nx] = -D
+    
+invM = scipy.linalg.inv(M)         # inverse of A
+
+phi_init = phi
+
+for t in range(nt):      
+
+    phi_next = np.dot(phi, invM)  
+    phi = phi_next   
+
+
+py.clf()
+py.plot(x, phi_init, 'k', x, phi_next, 'b')
+py.show()
+
